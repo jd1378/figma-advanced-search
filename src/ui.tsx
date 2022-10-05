@@ -6,28 +6,25 @@ import {
   render,
   Text,
   TextboxNumeric,
-  VerticalSpace
-} from '@create-figma-plugin/ui'
-import { emit } from '@create-figma-plugin/utilities'
-import { h } from 'preact'
-import { useCallback, useState } from 'preact/hooks'
+  VerticalSpace,
+} from '@create-figma-plugin/ui';
+import { emit } from '@create-figma-plugin/utilities';
+import { h } from 'preact';
+import { useCallback, useState } from 'preact/hooks';
 
-import { CloseHandler, CreateRectanglesHandler } from './types'
+import { CloseHandler, CreateRectanglesHandler } from './types';
 
 function Plugin() {
-  const [count, setCount] = useState<number | null>(5)
-  const [countString, setCountString] = useState('5')
-  const handleCreateRectanglesButtonClick = useCallback(
-    () => {
-      if (count !== null) {
-        emit<CreateRectanglesHandler>('CREATE_RECTANGLES', count)
-      }
-    },
-    [count]
-  )
+  const [count, setCount] = useState<number | null>(5);
+  const [countString, setCountString] = useState('5');
+  const handleCreateRectanglesButtonClick = useCallback(() => {
+    if (count !== null) {
+      emit<CreateRectanglesHandler>('CREATE_RECTANGLES', count);
+    }
+  }, [count]);
   const handleCloseButtonClick = useCallback(() => {
-    emit<CloseHandler>('CLOSE')
-  }, [])
+    emit<CloseHandler>('CLOSE');
+  }, []);
   return (
     <Container space="medium">
       <VerticalSpace space="large" />
@@ -52,7 +49,7 @@ function Plugin() {
       </Columns>
       <VerticalSpace space="small" />
     </Container>
-  )
+  );
 }
 
-export default render(Plugin)
+export default render(Plugin);

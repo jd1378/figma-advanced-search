@@ -1,31 +1,31 @@
-import { once, showUI } from '@create-figma-plugin/utilities'
+import { once, showUI } from '@create-figma-plugin/utilities';
 
-import { CloseHandler, CreateRectanglesHandler } from './types'
+import { CloseHandler, CreateRectanglesHandler } from './types';
 
 export default () => {
   once<CreateRectanglesHandler>('CREATE_RECTANGLES', (count: number) => {
-    const nodes: Array<SceneNode> = []
+    const nodes: Array<SceneNode> = [];
     for (let i = 0; i < count; i++) {
-      const rect = figma.createRectangle()
-      rect.x = i * 150
+      const rect = figma.createRectangle();
+      rect.x = i * 150;
       rect.fills = [
         {
           color: { b: 0, g: 0.5, r: 1 },
-          type: 'SOLID'
-        }
-      ]
-      figma.currentPage.appendChild(rect)
-      nodes.push(rect)
+          type: 'SOLID',
+        },
+      ];
+      figma.currentPage.appendChild(rect);
+      nodes.push(rect);
     }
-    figma.currentPage.selection = nodes
-    figma.viewport.scrollAndZoomIntoView(nodes)
-    figma.closePlugin()
-  })
+    figma.currentPage.selection = nodes;
+    figma.viewport.scrollAndZoomIntoView(nodes);
+    figma.closePlugin();
+  });
   once<CloseHandler>('CLOSE', () => {
-    figma.closePlugin()
-  })
+    figma.closePlugin();
+  });
   showUI({
     height: 137,
-    width: 240
-  })
-}
+    width: 240,
+  });
+};
