@@ -2,6 +2,7 @@ import {
   Button,
   Columns,
   Container,
+  Divider,
   LoadingIndicator,
   Muted,
   render,
@@ -20,6 +21,7 @@ import {
   SearchOptions,
   SearchResultHandler,
 } from './types';
+import TextField from './text_field';
 
 function Plugin() {
   const [selectedNodesCount, setSelectedNodesCount] = useState(0);
@@ -57,13 +59,13 @@ function Plugin() {
   }, []);
   return (
     <Container space="medium">
+      <VerticalSpace space="small" />
+      <Text>Search Constraints</Text>
+      <VerticalSpace space="small" />
+      <Divider />
+      <VerticalSpace space="small" />
+      <TextField name="by name" onValueInput={setName} value={name} />
       <VerticalSpace space="large" />
-      <Text>
-        <Muted>Name</Muted>
-      </Text>
-      <VerticalSpace space="small" />
-      <Textbox onValueInput={setName} value={name} variant="border" />
-      <VerticalSpace space="small" />
       <Text>
         <Muted>Selected Nodes: {selectedNodesCount}</Muted>
       </Text>

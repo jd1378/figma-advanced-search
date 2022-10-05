@@ -15,13 +15,17 @@ export default () => {
       let selectedNodesCount = 0;
       try {
         if (!isEmpty(searchOptions)) {
-          const { name } = searchOptions;
+          const { name, bySelectedNode } = searchOptions;
           const foundNodes: Array<SceneNode> = figma.currentPage.findAll(
             (node) => {
-              if (name && node.name.includes(name)) {
-                return true;
+              if (name && !node.name.includes(name)) {
+                return false;
               }
-              return false;
+
+              if (bySelectedNode) {
+                const selectedNode = figma.currentPage.selection[0];
+              }
+              return true;
             },
           );
           if (foundNodes.length) {

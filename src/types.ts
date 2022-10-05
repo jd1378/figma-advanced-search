@@ -1,7 +1,23 @@
 import { EventHandler } from '@create-figma-plugin/utilities';
 
+export type StyleConstraints = {
+  strokeStyleId?: string;
+  fillStyleId?: string;
+  gridStyleId?: string;
+  effectStyleId?: string;
+  backgroundStyleId?: string;
+  textStyleId?: string;
+};
+
+export type BySelectedNode = {
+  styles?: StyleConstraints;
+  size?: StyleConstraints;
+  effectStyleId?: string;
+};
+
 export type SearchOptions = {
   name?: string;
+  bySelectedNode?: BySelectedNode;
 };
 
 export type SearchResult = {
