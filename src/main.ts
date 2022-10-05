@@ -2,8 +2,8 @@ import { once, showUI } from '@create-figma-plugin/utilities'
 
 import { CloseHandler, CreateRectanglesHandler } from './types'
 
-export default function () {
-  once<CreateRectanglesHandler>('CREATE_RECTANGLES', function (count: number) {
+export default () => {
+  once<CreateRectanglesHandler>('CREATE_RECTANGLES', (count: number) => {
     const nodes: Array<SceneNode> = []
     for (let i = 0; i < count; i++) {
       const rect = figma.createRectangle()
@@ -21,7 +21,7 @@ export default function () {
     figma.viewport.scrollAndZoomIntoView(nodes)
     figma.closePlugin()
   })
-  once<CloseHandler>('CLOSE', function () {
+  once<CloseHandler>('CLOSE', () => {
     figma.closePlugin()
   })
   showUI({

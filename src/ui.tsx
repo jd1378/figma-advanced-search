@@ -18,14 +18,14 @@ function Plugin() {
   const [count, setCount] = useState<number | null>(5)
   const [countString, setCountString] = useState('5')
   const handleCreateRectanglesButtonClick = useCallback(
-    function () {
+    () => {
       if (count !== null) {
         emit<CreateRectanglesHandler>('CREATE_RECTANGLES', count)
       }
     },
     [count]
   )
-  const handleCloseButtonClick = useCallback(function () {
+  const handleCloseButtonClick = useCallback(() => {
     emit<CloseHandler>('CLOSE')
   }, [])
   return (
