@@ -2,48 +2,77 @@ import {
   Button,
   Columns,
   Container,
+  LoadingIndicator,
   Muted,
   render,
   Text,
-  TextboxNumeric,
+  Textbox,
   VerticalSpace,
 } from '@create-figma-plugin/ui';
-import { emit } from '@create-figma-plugin/utilities';
+import { emit, on } from '@create-figma-plugin/utilities';
 import { h } from 'preact';
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'preact/hooks';
+import isEmpty from 'lodash/isEmpty';
 
-import { CloseHandler, CreateRectanglesHandler } from './types';
+import {
+  CloseHandler,
+  SearchAndSelectHandler,
+  SearchOptions,
+  SearchResultHandler,
+} from './types';
 
 function Plugin() {
-  const [count, setCount] = useState<number | null>(5);
-  const [countString, setCountString] = useState('5');
-  const handleCreateRectanglesButtonClick = useCallback(() => {
-    if (count !== null) {
-      emit<CreateRectanglesHandler>('CREATE_RECTANGLES', count);
+  const [selectedNodesCount, setSelectedNodesCount] = useState(0);
+  const [searching, setSearching] = useState(false);
+  const [searchTerms, setSearchTerms] = useState<SearchOptions>({});
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    const newSearchTerms: SearchOptions = {};
+    if (name) {
+      newSearchTerms.name = name;
     }
-  }, [count]);
-  const handleCloseButtonClick = useCallback(() => {
+    setSearchTerms(newSearchTerms);
+  }, [name]);
+
+  const handleSearchAndSelectClick = useCallback(() => {
+    if (!isEmpty(searchTerms) && !searching) {
+      setSearching(true);
+      // timeout to allow UI to show the loading indicator, since the ui will freeze if theres too many stuff
+      setTimeout(() => {
+        emit<SearchAndSelectHandler>('SEARCH_AND_SELECT', searchTerms);
+      }, 10);
+    }
+  }, [searchTerms, searching]);
+
+  useEffect(() => {
+    on<SearchResultHandler>('SEARCH_RESULT', (result) => {
+      setSearching(false);
+      setSelectedNodesCount(result.selectedNodesCount);
+    });
+  });
+
+  const handleCloseClick = useCallback(() => {
     emit<CloseHandler>('CLOSE');
   }, []);
   return (
     <Container space="medium">
       <VerticalSpace space="large" />
       <Text>
-        <Muted>Count</Muted>
+        <Muted>Name</Muted>
       </Text>
       <VerticalSpace space="small" />
-      <TextboxNumeric
-        onNumericValueInput={setCount}
-        onValueInput={setCountString}
-        value={countString}
-        variant="border"
-      />
+      <Textbox onValueInput={setName} value={name} variant="border" />
+      <VerticalSpace space="small" />
+      <Text>
+        <Muted>Selected Nodes: {selectedNodesCount}</Muted>
+      </Text>
       <VerticalSpace space="extraLarge" />
       <Columns space="extraSmall">
-        <Button fullWidth onClick={handleCreateRectanglesButtonClick}>
-          Create
+        <Button fullWidth onClick={handleSearchAndSelectClick}>
+          {searching ? <LoadingIndicator /> : 'Search And Select'}
         </Button>
-        <Button fullWidth onClick={handleCloseButtonClick} secondary>
+        <Button fullWidth onClick={handleCloseClick} secondary>
           Close
         </Button>
       </Columns>

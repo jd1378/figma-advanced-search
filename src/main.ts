@@ -1,31 +1,47 @@
-import { once, showUI } from '@create-figma-plugin/utilities';
+import { once, emit, showUI, on } from '@create-figma-plugin/utilities';
+import isEmpty from 'lodash/isEmpty';
 
-import { CloseHandler, CreateRectanglesHandler } from './types';
+import {
+  CloseHandler,
+  SearchAndSelectHandler,
+  SearchOptions,
+  SearchResultHandler,
+} from './types';
 
 export default () => {
-  once<CreateRectanglesHandler>('CREATE_RECTANGLES', (count: number) => {
-    const nodes: Array<SceneNode> = [];
-    for (let i = 0; i < count; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [
-        {
-          color: { b: 0, g: 0.5, r: 1 },
-          type: 'SOLID',
-        },
-      ];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
-    }
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
-    figma.closePlugin();
-  });
+  on<SearchAndSelectHandler>(
+    'SEARCH_AND_SELECT',
+    (searchOptions: SearchOptions) => {
+      let selectedNodesCount = 0;
+      try {
+        if (!isEmpty(searchOptions)) {
+          const { name } = searchOptions;
+          const foundNodes: Array<SceneNode> = figma.currentPage.findAll(
+            (node) => {
+              if (name && node.name.includes(name)) {
+                return true;
+              }
+              return false;
+            },
+          );
+          if (foundNodes.length) {
+            selectedNodesCount = foundNodes.length;
+            figma.currentPage.selection = foundNodes;
+            figma.viewport.scrollAndZoomIntoView(foundNodes);
+          }
+        }
+      } finally {
+        emit<SearchResultHandler>('SEARCH_RESULT', {
+          selectedNodesCount,
+        });
+      }
+    },
+  );
   once<CloseHandler>('CLOSE', () => {
     figma.closePlugin();
   });
   showUI({
-    height: 137,
+    height: 200,
     width: 240,
   });
 };
