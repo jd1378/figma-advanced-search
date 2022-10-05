@@ -1,4 +1,4 @@
-# Preact Rectangles
+# Advanced Search
 
 ## Development guide
 

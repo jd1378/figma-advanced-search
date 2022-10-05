@@ -18,8 +18,8 @@
     "editorType": [
       "figma"
     ],
-    "id": "preact-rectangles",
-    "name": "Preact Rectangles",
+    "id": "advanced-search",
+    "name": "Advanced Search",
     "main": "src/main.ts",
     "ui": "src/ui.tsx"
   }
