@@ -6,16 +6,30 @@ export default function GenericField({
   children,
   resetValue,
   name,
+  open,
+  opened,
 }: {
   // eslint-disable-next-line react/require-default-props
   children?: ComponentChildren;
   resetValue: () => void;
+  // eslint-disable-next-line react/require-default-props
+  opened?: () => void;
   name: string;
+  // eslint-disable-next-line react/require-default-props
+  open?: boolean;
 }) {
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(open || false);
 
   useEffect(() => {
-    if (!isEnabled && resetValue) {
+    setIsEnabled(open || false);
+  }, [open]);
+
+  useEffect(() => {
+    if (isEnabled) {
+      if (opened) {
+        opened();
+      }
+    } else if (resetValue) {
       resetValue();
     }
   }, [isEnabled]);
