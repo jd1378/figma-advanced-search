@@ -2,54 +2,66 @@ import { h, Fragment, JSX, toChildArray, ComponentChildren } from 'preact';
 import { Muted, Text, Checkbox } from '@create-figma-plugin/ui';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-export default function GenericField({
+function GenericField({
   children,
   resetValue,
   name,
   open,
   opened,
+  disabled = false,
 }: {
-  // eslint-disable-next-line react/require-default-props
   children?: ComponentChildren;
   resetValue: () => void;
-  // eslint-disable-next-line react/require-default-props
   opened?: () => void;
   name: string;
-  // eslint-disable-next-line react/require-default-props
   open?: boolean;
+  disabled?: boolean;
 }) {
-  const [isEnabled, setIsEnabled] = useState(open || false);
+  const [isChecked, setIsChecked] = useState(open || false);
 
   useEffect(() => {
-    setIsEnabled(open || false);
+    setIsChecked(open || false);
   }, [open]);
 
   useEffect(() => {
-    if (isEnabled) {
+    if (isChecked) {
       if (opened) {
         opened();
       }
     } else if (resetValue) {
       resetValue();
     }
-  }, [isEnabled]);
+  }, [isChecked]);
 
   const handleIsEnabledChange = useCallback(
     (event: JSX.TargetedEvent<HTMLInputElement>) => {
-      setIsEnabled(event.currentTarget.checked);
+      setIsChecked(event.currentTarget.checked);
     },
-    [setIsEnabled],
+    [setIsChecked],
   );
 
   return (
     <Fragment>
-      <Checkbox onChange={handleIsEnabledChange} value={isEnabled}>
+      <Checkbox
+        onChange={handleIsEnabledChange}
+        value={isChecked}
+        disabled={disabled}
+      >
         <Text>
           <Muted>{name}</Muted>
         </Text>
       </Checkbox>
 
-      {isEnabled && children ? toChildArray(children) : undefined}
+      {!disabled && isChecked && children ? toChildArray(children) : undefined}
     </Fragment>
   );
 }
+
+GenericField.defaultProps = {
+  disabled: false,
+  open: undefined,
+  opened: undefined,
+  children: undefined,
+};
+
+export default GenericField;

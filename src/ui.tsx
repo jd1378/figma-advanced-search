@@ -35,6 +35,10 @@ function Plugin() {
   const [selectedNodesCount, setSelectedNodesCount] = useState(0);
   const [searching, setSearching] = useState(false);
   const [searchTerms, setSearchTerms] = useState<SearchOptions>({});
+  const [hasSelectedNode, setHasSelectedNode] = useState(false);
+  const [lastSelectionConstraints, setLastSelectionConstraints] = useState<
+    BySelectedNode | undefined
+  >(undefined);
   const [name, setName] = useState('');
   const [bySelectedNode, setBySelectedNode] = useState<
     BySelectedNode | undefined
@@ -51,6 +55,12 @@ function Plugin() {
     setSearchTerms(newSearchTerms);
   }, [name, bySelectedNode]);
 
+  useEffect(() => {
+    if (bySelectedNode) {
+      setLastSelectionConstraints(bySelectedNode);
+    }
+  }, [bySelectedNode, setLastSelectionConstraints]);
+
   const handleSearchAndSelectClick = useCallback(() => {
     if (!isEmpty(searchTerms) && !searching) {
       setSearching(true);
@@ -61,8 +71,29 @@ function Plugin() {
     }
   }, [searchTerms, searching]);
 
+  const handleSelectedNodeFieldOpened = useCallback(() => {
+    if (lastSelectionConstraints) {
+      setBySelectedNode(lastSelectionConstraints);
+    } else {
+      setBySelectedNode({
+        size: {
+          height: true,
+          width: true,
+        },
+        styles: {
+          backgroundStyleId: true,
+          effectStyleId: true,
+          fillStyleId: true,
+          gridStyleId: true,
+          strokeStyleId: true,
+          textStyleId: true,
+        },
+      });
+    }
+  }, [lastSelectionConstraints, setBySelectedNode]);
+
   useEffect(() => {
-    on<SearchResultHandler>('SEARCH_RESULT', (result) => {
+    return on<SearchResultHandler>('SEARCH_RESULT', (result) => {
       setSearching(false);
       setSelectedNodesCount(result.selectedNodesCount);
     });
@@ -70,27 +101,19 @@ function Plugin() {
 
   useEffect(() => {
     // once we are ready we retrieve the needed data from main instance
-    on<SelectionChangedHandler>('SELECTION_CHANGED', (isSelectionEmpty) => {
-      if (isSelectionEmpty) {
-        setBySelectedNode(undefined);
-      } else {
-        setBySelectedNode({
-          size: {
-            height: true,
-            width: true,
-          },
-          styles: {
-            backgroundStyleId: true,
-            effectStyleId: true,
-            fillStyleId: true,
-            gridStyleId: true,
-            strokeStyleId: true,
-            textStyleId: true,
-          },
-        });
-      }
-    });
-  });
+    return on<SelectionChangedHandler>(
+      'SELECTION_CHANGED',
+      (isSelectionEmpty) => {
+        if (isSelectionEmpty) {
+          setHasSelectedNode(false);
+          setBySelectedNode(undefined);
+        } else {
+          setHasSelectedNode(true);
+          handleSelectedNodeFieldOpened();
+        }
+      },
+    );
+  }, [setBySelectedNode, setHasSelectedNode, handleSelectedNodeFieldOpened]);
 
   useLayoutEffect(() => {
     // once we are ready we retrieve the needed data from main instance
@@ -113,14 +136,16 @@ function Plugin() {
     >
       <div>
         <VerticalSpace space="small" />
-        <Text>Search Constraints</Text>
+        <Text>Search Constraints (Current Page)</Text>
         <VerticalSpace space="small" />
         <Divider />
         <VerticalSpace space="small" />
         <div>
           <SelectedNodeField
+            disabled={!hasSelectedNode}
             onValueInput={setBySelectedNode}
             value={bySelectedNode}
+            opened={handleSelectedNodeFieldOpened}
           />
           <VerticalSpace space="medium" />
           <TextField name="By Name" onValueInput={setName} value={name} />

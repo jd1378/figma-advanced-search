@@ -13,9 +13,16 @@ import StylesConstraint from './styles_constraint';
 export type FieldProps = {
   onValueInput: OnValueChange<BySelectedNode | undefined, string>;
   value: BySelectedNode | undefined;
+  opened?: () => void;
+  disabled?: boolean;
 };
 
-function SelectedNodeField({ onValueInput, value }: FieldProps) {
+function SelectedNodeField({
+  onValueInput,
+  value,
+  disabled = false,
+  opened,
+}: FieldProps) {
   const resetValue = useCallback(() => {
     if (onValueInput) {
       onValueInput(undefined);
@@ -36,29 +43,13 @@ function SelectedNodeField({ onValueInput, value }: FieldProps) {
     [onValueInput, value],
   );
 
-  const handleOpened = useCallback(() => {
-    onValueInput({
-      size: {
-        height: true,
-        width: true,
-      },
-      styles: {
-        backgroundStyleId: true,
-        effectStyleId: true,
-        fillStyleId: true,
-        gridStyleId: true,
-        strokeStyleId: true,
-        textStyleId: true,
-      },
-    });
-  }, []);
-
   return (
     <GenericField
       name="By Selected Node"
       resetValue={resetValue}
       open={!!value}
-      opened={handleOpened}
+      disabled={disabled}
+      opened={opened}
     >
       <VerticalSpace space="small" />
       <Container space="small">
